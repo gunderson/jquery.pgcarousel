@@ -11,21 +11,20 @@
         // To avoid scope issues, use 'base' instead of 'this'
         // to reference this class from internal events and functions.
         var base = this;
-        
+
         // Access to jQuery and DOM versions of element
         base.$el = $(el);
         base.el = el;
         base.numActivePages = 0;
-        
+
         // Add a reverse reference to the DOM object
         base.$el.data("pgCarousel", base);
-        
+
         base.init = function(){
             base.el = el;
             base.options = $.extend(true, {},$.pgCarousel.options, options);
             base.$el = $(this.el);
             base.generate();
-            
         };
 
         base.generate = function(){
@@ -36,12 +35,12 @@
                 base.$el.append(base.options.$pages);
             }
         };
-    
+
         // ------------------------------------------------
         base.numPages = function() {
             return Math.ceil(base.options.$currentSet.length / base.options.pageLength);
         };
-    
+
         // ------------------------------------------------
         base.page = function(pageNumber, instant) {
             if (arguments.length > 0){
@@ -57,29 +56,35 @@
             if(base.options.currentPageIndex < base.numPages() - 1) {
                 base.options.currentPageIndex++;
                 return base.showCarouselPage(instant);
+            } else if (base.options.loop){
+                base.options.currentPageIndex = 0;
+                return base.showCarouselPage(instant);
             }
             return base;
         };
-    
+
         // ------------------------------------------------
         base.prevPage = function(instant) {
             if(base.options.currentPageIndex > 0) {
                 base.options.currentPageIndex--;
                 return base.showCarouselPage(instant);
+            } else if (base.options.loop){
+                base.options.currentPageIndex = base.numPages() - 1;
+                return base.showCarouselPage(instant);
             }
             return base;
         };
-    
+
         // ------------------------------------------------
         base.findPageWith = function(item) {
             var index = base.options.$currentSet.indexOf(item);
             var pageNumber = (index / base.options.pageLength) >> 0;
             return pageNumber;
         };
-    
+
         // ------------------------------------------------
         base.removeItem = function(items){
-            if ( Object.prototype.toString.call( items ) !== '[object Array]' ){
+            if ( !$.isArray(items)){
                 items = [items];
             }
             $.each(items, function(i, item){
@@ -90,22 +95,31 @@
             });
             return base;
         };
-    
+
         // ------------------------------------------------
-        base.addItem = function(items, at) {
-            at = (typeof(at) !== "undefined") ? at : -1;
+        base.addItem = function(item, at) {
+            at = (at === 0 || at) ? at : -1;
+
+            if ($.isArray(item)){
+                $.each(item, function(i, el){
+                    base.addItem(el, at + i);
+                })
+                return base;
+            }
 
             switch(at){
                 case -1:
-                    base.options.$carouselItems.push(items);
+                    base.options.$carouselItems.push(item);
                     break;
                 case 0:
-                    base.options.$carouselItems.unshift(items);
+                    base.options.$carouselItems.unshift(item);
                     break;
                 default:
-                    base.options.$carouselItems.splice(at, 0, items);
+                    base.options.$carouselItems.splice(at, 0, item);
                 break;
             }
+
+            item.detach();
 
             if(!base.options.filterOptions){
                 base.options.$currentSet = base.options.$carouselItems;
@@ -114,7 +128,7 @@
             }
             return base;
         };
-    
+
         // ------------------------------------------------
         base.filterSet = function(filterOptions) {
             var newSet = [];
@@ -126,7 +140,6 @@
                 passed = true;
                 for (var key in filterOptions){
                     if (v_all[i].model.get(key) != filterOptions[key]){
-                        
                         passed = false;
                         continue;
                     }
@@ -149,18 +162,15 @@
             var $currentSet = base.options.$currentSet;
             var $pages = base.options.$pages;
             var animationTime = base.options.animationTime;
-    
+
             //make new page
-            // var $page = base.options.$page = $('<div/>', {
-            //     //id: 'carouselPage_' + currentPageIndex
-            // }).append($('<div class="items"></div>));
+            var $page = base.options.$page = $('<div><div class="items content"></div></div>', {
+                id: 'carouselPage_' + currentPageIndex
+            });
 
-            var $page = base.options.$page = ich.mainCarouselPageTemplate();
-            if (currentPageIndex % 2){
-                $page.addClass('right');
-            }
+            // var $page = base.options.$page = $("<div>");
 
-            $page.addClass('carouselPage').css({
+            $page.addClass('pgCarouselPage').css({
                 display: 'none',
                 position: 'absolute'
             }).data({
@@ -169,7 +179,20 @@
 
             var fromDirection = 0;
             if($prevPage) {
-                fromDirection = (currentPageIndex < $prevPage.data('page')) ? -1 : 1;
+            console.log($prevPage.data('page'),currentPageIndex, base.numPages() - 1)
+                if (currentPageIndex < $prevPage.data('page') && !(currentPageIndex === 0 && $prevPage.data('page') === base.numPages() - 1)){
+                    console.log("forward")
+                    fromDirection = -1;
+                } else if (currentPageIndex > $prevPage.data('page') && !(currentPageIndex === base.numPages() - 1 && $prevPage.data('page') === 0)){
+                    console.log("back")
+                    fromDirection = 1;
+                } else if (currentPageIndex === 0){
+                    console.log("loop to the front")
+                    fromDirection = 1;
+                } else if (currentPageIndex === base.numPages() - 1){
+                    console.log("loop to the back")
+                    fromDirection = -1;
+                }
             }
 
             //populate new page
@@ -179,48 +202,32 @@
             //trace(base.options.currentPageIndex, base.options.pageLength);
 
             $.each(subset, function(i, $item) {
-                $page.find('.items').append($item.$el);
+                $page.find('.items').append($item);
             });
 
             //add new page to stage
             $pages.append($page);
-            
+
             if (!instant){
 
                 //transition in new page
                 $page.css({
                         display: "block",
-                        y: (fromDirection * $pages.height())
+                        x: (fromDirection * $pages.width())
                     })
-                    // .animate({
-                    //     top: 0
-                    // },
-                    // animationTime,
-                    // 'swing'
                     .transition({
-                        y: 0
+                        x: 0
                     },
                     animationTime,
                     'snap'
                 );
-        
+
                 //transition out current page
                 if($prevPage) {
                     $prevPage
                         .stop()
-                        // .animate({
-                        //         top: -(fromDirection * $pages.height())
-                        //     },
-                        //     animationTime,
-                        //     'swing',
-                        //     function() {
-                        //         //destroy current page
-                        //         $(this)
-                        //         .detach();
-                        //     }
-                        // );
                         .transition({
-                                y: -(fromDirection * $pages.height())
+                                x: -(fromDirection * $pages.width())
                             },
                             animationTime,
                             'snap',
@@ -234,12 +241,13 @@
             } else {
                $page.css({
                     display: "block",
-                    y: 0
+                    x: 0
                 });
                if ($prevPage){
                 $prevPage.detach();
                }
             }
+            base.$el.trigger("carousel:page", {pageId:currentPageIndex, page:$page});
 
             return base;
         };
@@ -278,11 +286,11 @@
 
           return true;
         };
-        
+
         // Run initializer
         base.init();
     };
-    
+
     $.pgCarousel.options =  {
         $currentSet: [],
         $carouselItems: [],
@@ -290,11 +298,18 @@
         $prevPage: null,
         currentPageIndex: 0,
         $page: null,
-        pageLength: 24,
+        pageLength: 1,
         filterOptions: null,
         animationTime: 1200,
         animationIndex: 0,
-        $pages: null
+        $pages: null,
+        loop: true,
+        transitionIn: function(newPage, oldPage, direction){
+
+        },
+        transitionOut: function(newPage, oldPage, direction){
+
+        }
     };
 
     // Collection method.
@@ -323,7 +338,7 @@
             }
             if(settings && typeof settings === "object") {
                 $.extend(carousel.options, settings);
-                if(settings.gotoPage) {
+                if(settings.gotoPage || settings.gotoPage === 0) {
                     return carousel.page(settings.gotoPage);
                 }
                 if(settings.carouselItems) {
