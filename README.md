@@ -28,3 +28,7 @@ _(Coming soon)_
 
 ## Release History
 _(Nothing yet)_
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/gunderson/jquery.pgcarousel/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
