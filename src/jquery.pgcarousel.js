@@ -312,6 +312,8 @@
     // Collection method.
     $.fn.pgCarousel = function(settings) {
 
+        settings = settings || {};
+
         if(settings && typeof settings === "string") {
             var carousel;
             if ((carousel = this[0].pgcarousel)){
@@ -330,8 +332,12 @@
         return this.each(function() {
             var options, carousel;
             if(!(carousel = this.pgcarousel)) {
+                if (!settings.add){
+                    settings.add = $(this).find('> div');
+                }
                 options = $.extend({}, $.pgCarousel.options, settings);
                 this.pgcarousel = carousel = new $.pgCarousel(this, options);
+                console.log(settings)
             }
             if(settings && typeof settings === "object") {
                 $.extend(carousel.options, settings);

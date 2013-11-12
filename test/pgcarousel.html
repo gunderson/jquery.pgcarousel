@@ -49,26 +49,25 @@
 
 
 <body>
-    <div id="pgcarousel-test"></div>
+    <div id="pgcarousel-test">
+      <div class="testpage">1</div>
+      <div class="testpage">2</div>
+      <div class="testpage">3</div>
+      <div class="testpage">4</div>
+      <div class="testpage">5</div>
+      <div class="testpage">6</div>
+      <div class="testpage">7</div>
+      <div class="testpage">8</div>
+    </div>
     <div id="controls">
       <button id="prev-button">Prev</button>
       <button id="next-button">Next</button>
     </div>
-    <div class="testpage">1</div>
-    <div class="testpage">2</div>
-    <div class="testpage">3</div>
-    <div class="testpage">4</div>
-    <div class="testpage">5</div>
-    <div class="testpage">6</div>
-    <div class="testpage">7</div>
-    <div class="testpage">8</div>
 </body>
 
 
   <script type="text/javascript">
-    $("#pgcarousel-test").pgCarousel({
-      add: $(".testpage")
-    });
+    $("#pgcarousel-test").pgCarousel();
     $('#prev-button').click(function(){
       $("#pgcarousel-test").pgCarousel("prev");
     });
