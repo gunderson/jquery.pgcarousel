@@ -1,4 +1,4 @@
-/*! jQuery.PGCarousel - v0.1.0 - 2013-05-31
+/*! jQuery.PGCarousel - v0.1.0 - 2013-11-12
 * https://github.com/gunderson/jquery.pgcarousel
 * Copyright (c) 2013 Patrick Gunderson; Licensed MIT */
 (function($) {
@@ -24,9 +24,9 @@
 
         base.generate = function(){
             //make $pages mask
-            base.options.$pages = base.$el.find(".pages");
+            base.options.$pages = base.$el.find(".pgCarousel-pages");
             if (!base.options.$pages.length){
-                base.options.$pages = $("<div/>").addClass('pages');
+                base.options.$pages = $("<div class='pgCarousel-pages' />");
                 base.$el.append(base.options.$pages);
             }
         };
@@ -84,7 +84,7 @@
             }
             $.each(items, function(i, item){
                 var index = base.options.$carouselItems.indexOf(item);
-                if (index != -1){
+                if (index !== -1){
                     base.options.$carouselItems.splice(index, 1);
                 }
             });
@@ -95,10 +95,10 @@
         base.addItem = function(item, at) {
             at = (at === 0 || at) ? at : -1;
 
-            if ($.isArray(item)){
+            if ((item instanceof jQuery && item.length > 1)){
                 $.each(item, function(i, el){
-                    base.addItem(el, at + i);
-                })
+                    base.addItem($(el), at + i);
+                });
                 return base;
             }
 
@@ -159,13 +159,13 @@
             var animationTime = base.options.animationTime;
 
             //make new page
-            var $page = base.options.$page = $('<div><div class="items content"></div></div>', {
-                id: 'carouselPage_' + currentPageIndex
+            var $page = base.options.$page = $('<div><div class="pgCarousel-items pgCarousel-content"></div></div>', {
+                id: 'pgCarousel-Page-' + currentPageIndex
             });
 
             // var $page = base.options.$page = $("<div>");
 
-            $page.addClass('pgCarouselPage').css({
+            $page.addClass('pgCarousel-page').css({
                 display: 'none',
                 position: 'absolute'
             }).data({
@@ -197,7 +197,7 @@
             //trace(base.options.currentPageIndex, base.options.pageLength);
 
             $.each(subset, function(i, $item) {
-                $page.find('.items').append($item);
+                $page.find('.pgCarousel-items').append($item);
             });
 
             //add new page to stage
@@ -208,24 +208,24 @@
                 //transition in new page
                 $page.css({
                         display: "block",
-                        x: (fromDirection * $pages.width())
+                        left: (fromDirection * $pages.width())
                     })
-                    .transition({
-                        x: 0
+                    .animate({
+                        left: 0
                     },
                     animationTime,
-                    'snap'
+                    'swing'
                 );
 
                 //transition out current page
                 if($prevPage) {
                     $prevPage
                         .stop()
-                        .transition({
-                                x: -(fromDirection * $pages.width())
+                        .animate({
+                                left: -(fromDirection * $pages.width())
                             },
                             animationTime,
-                            'snap',
+                            'swing',
                             function() {
                                 //destroy current page
                                 $(this)
@@ -236,13 +236,13 @@
             } else {
                $page.css({
                     display: "block",
-                    x: 0
+                    left: 0
                 });
                if ($prevPage){
                 $prevPage.detach();
                }
             }
-            base.$el.trigger("carousel:page", {pageId:currentPageIndex, page:$page});
+            base.$el.trigger("change:page", {pageId:currentPageIndex, page:$page});
 
             return base;
         };
@@ -295,7 +295,7 @@
         $page: null,
         pageLength: 1,
         filterOptions: null,
-        animationTime: 1200,
+        animationTime: 1000,
         animationIndex: 0,
         $pages: null,
         loop: true,
