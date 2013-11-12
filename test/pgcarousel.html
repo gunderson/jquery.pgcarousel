@@ -19,17 +19,28 @@
       background-color: #0a0
     }
     .testpage{
+      box-sizing: border-box;
+      border:dashed 1px #ff0;
       position: absolute;
       top:0;
       left:0;
       width: 100%;
       height: 100%;
       background-color: #a00;
+      color: #ff0;
+      font-size: 80px;
+      line-height: 300px;
+      text-align: center;
     }
     .pgCarousel-pages, .pgCarousel-page, .pgCarousel-items{
       position: relative;
       width: 100%;
       height: 100%;
+    }
+    #controls{
+      width: 400px;
+      text-align: center;
+      margin: auto;
     }
 
   </style>
@@ -39,21 +50,31 @@
 
 <body>
     <div id="pgcarousel-test"></div>
-
-    <div class="testpage"></div>
-    <div class="testpage"></div>
-    <div class="testpage"></div>
-    <div class="testpage"></div>
-    <div class="testpage"></div>
-    <div class="testpage"></div>
-    <div class="testpage"></div>
-    <div class="testpage"></div>
+    <div id="controls">
+      <button id="prev-button">Prev</button>
+      <button id="next-button">Next</button>
+    </div>
+    <div class="testpage">1</div>
+    <div class="testpage">2</div>
+    <div class="testpage">3</div>
+    <div class="testpage">4</div>
+    <div class="testpage">5</div>
+    <div class="testpage">6</div>
+    <div class="testpage">7</div>
+    <div class="testpage">8</div>
 </body>
 
 
   <script type="text/javascript">
     $("#pgcarousel-test").pgCarousel({
       add: $(".testpage")
+    });
+    $('#prev-button').click(function(){
+      $("#pgcarousel-test").pgCarousel("prev");
+    });
+
+    $('#next-button').click(function(){
+      $("#pgcarousel-test").pgCarousel("next");
     });
   </script>
 </html>

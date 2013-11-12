@@ -93,11 +93,11 @@
 
         // ------------------------------------------------
         base.addItem = function(item, at) {
-            at = (at === 0 || at) ? at : -1;
+            at = (at >= 0) ? at : -1;
 
             if ((item instanceof jQuery && item.length > 1)){
                 $.each(item, function(i, el){
-                    base.addItem($(el), at + i);
+                    base.addItem($(el));
                 });
                 return base;
             }
@@ -105,9 +105,6 @@
             switch(at){
                 case -1:
                     base.options.$carouselItems.push(item);
-                    break;
-                case 0:
-                    base.options.$carouselItems.unshift(item);
                     break;
                 default:
                     base.options.$carouselItems.splice(at, 0, item);
@@ -134,7 +131,7 @@
             while (++i < endi){
                 passed = true;
                 for (var key in filterOptions){
-                    if (v_all[i].model.get(key) != filterOptions[key]){
+                    if (v_all[i].model.get(key) !== filterOptions[key]){
                         passed = false;
                         continue;
                     }
@@ -174,18 +171,18 @@
 
             var fromDirection = 0;
             if($prevPage) {
-            console.log($prevPage.data('page'),currentPageIndex, base.numPages() - 1)
+            // console.log($prevPage.data('page'),currentPageIndex, base.numPages() - 1)
                 if (currentPageIndex < $prevPage.data('page') && !(currentPageIndex === 0 && $prevPage.data('page') === base.numPages() - 1)){
-                    console.log("forward")
+                    // console.log("forward")
                     fromDirection = -1;
                 } else if (currentPageIndex > $prevPage.data('page') && !(currentPageIndex === base.numPages() - 1 && $prevPage.data('page') === 0)){
-                    console.log("back")
+                    // console.log("back")
                     fromDirection = 1;
                 } else if (currentPageIndex === 0){
-                    console.log("loop to the front")
+                    // console.log("loop to the front")
                     fromDirection = 1;
                 } else if (currentPageIndex === base.numPages() - 1){
-                    console.log("loop to the back")
+                    // console.log("loop to the back")
                     fromDirection = -1;
                 }
             }
