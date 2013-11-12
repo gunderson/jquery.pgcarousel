@@ -1,0 +1,21 @@
+{
+  "name": "jquery.pgcarousel",
+  "version": "0.0.0",
+  "homepage": "https://github.com/gunderson/jquery.pgcarousel",
+  "description": "a jquery plugin carousel controller",
+  "main": "src/jquery.pgcarousel.js",
+  "keywords": [
+    "carousel"
+  ],
+  "authors": [
+    "Patrick Gunderson"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
